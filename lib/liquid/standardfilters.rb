@@ -99,7 +99,14 @@ module Liquid
 
     # map/collect on a given property
     def map(input, property)
-      ary = [input].flatten
+      ary = if input.is_a?(Array)
+        input.flatten
+      elsif !input.class.include?(Enumerable)
+        [input].flatten
+      else
+        input
+      end
+
       ary.map do |e|
         if e.respond_to?(:to_liquid)
           e = e.to_liquid

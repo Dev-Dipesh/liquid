@@ -6,6 +6,14 @@ class Filters
   include Liquid::StandardFilters
 end
 
+class TestEnumerable < Liquid::Drop
+  include Enumerable
+
+  def each(&block)
+    [ { "foo" => 1 }, { "foo" => 2 }, { "foo" => 3 } ].each(&block)
+  end
+end
+
 class StandardFiltersTest < Test::Unit::TestCase
   include Liquid
 
@@ -100,6 +108,10 @@ class StandardFiltersTest < Test::Unit::TestCase
   def test_map_doesnt_call_arbitrary_stuff
     assert_equal "", Liquid::Template.parse('{{ "foo" | map: "__id__" }}').render
     assert_equal "", Liquid::Template.parse('{{ "foo" | map: "inspect" }}').render
+  end
+
+  def test_map_works_on_enumerables
+    assert_equal "123", Liquid::Template.parse('{{ foo | map: "foo" }}').render!("foo" => TestEnumerable.new)
   end
 
   def test_date
